@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Event Registration - ACM SIGCHI Tech Task</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <style>
+    :root{
+      --brand-start:#00e5ff;
+      --brand-end:#7c4dff;
+      --accent:#ff3d71;
+      --ink:#f5fbff;
+      --ink-soft:#d9e9ff;
+      --bg-deep:#070a16;
+      --bg-card:rgba(255,255,255,0.12);
+      --glass-border:rgba(255,255,255,0.22);
+      --shadow:0 30px 60px rgba(0,0,0,.55);
+      --radius:20px;
+    }
+
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
+      background:
+        radial-gradient(1200px 800px at 10% -10%, #1c1f3f 0%, #0a0f2a 45%, #070a16 100%);
+      color: var(--ink);
+      scroll-behavior:smooth;
+      overflow-x:hidden;
+    }
+
+    .custom-nav{
+      position:fixed; inset:0 0 auto 0; z-index:100;
+      padding:10px 22px;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(90deg, rgba(7,10,22,.65), rgba(7,10,22,.35));
+      border-bottom:1px solid rgba(255,255,255,.10);
+    }
+    .navbar-brand{
+      display:flex; align-items:center; gap:.6rem; color:#fff !important;
+      font-weight:800; letter-spacing:.2px;
+    }
+    .brand-dot{
+      width:28px; height:28px; border-radius:50%;
+      background: conic-gradient(from 120deg, var(--brand-start), var(--brand-end), var(--brand-start));
+      box-shadow: 0 0 24px rgba(0,229,255,.8), 0 0 40px rgba(124,77,255,.45);
+    }
+    .nav-link{ color:#eaf1ff !important; opacity:.95; }
+    .nav-link:hover{ color:#fff !important; text-shadow:0 0 10px rgba(255,255,255,.35); }
+    .nav-cta{
+      background: linear-gradient(90deg, var(--brand-start), var(--brand-end));
+      border:none; border-radius:999px; padding:.55rem 1rem; color:#001122; font-weight:800;
+      margin-left:8px; box-shadow:0 14px 32px rgba(0,229,255,.35), 0 10px 28px rgba(124,77,255,.25);
+    }
+    .nav-cta:hover{ filter:brightness(1.08); transform:translateY(-1px); }
+
+    .section { min-height:100vh; display:flex; align-items:center; position:relative; }
+    .container-narrow{ max-width:1120px; margin-inline:auto; padding: 0 20px; }
+
+    .heading-xl{
+      font-weight:900; line-height:1.3; letter-spacing:-.02em;
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      background: #ffffff;
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      text-shadow: 0 6px 28px rgba(0,229,255,.16);
+    }
+
+    .lead-lg{ font-size: clamp(1.05rem, 1.2vw, 1.28rem); color: var(--ink-soft); }
+
+    .hero{
+      padding-top:88px;
+      display:grid; grid-template-columns: 1.1fr .9fr; gap:32px; width:100%;
+    }
+    .chips{ display:flex; gap:10px; flex-wrap:wrap; margin:14px 0 18px 0;}
+    .chip{
+      border:1px solid rgba(255,255,255,.22); color:#00111a; padding:.38rem .65rem; border-radius:999px;
+      background: linear-gradient(90deg, rgba(0,229,255,.95), rgba(124,77,255,.9));
+      font-size:.86rem; box-shadow:0 10px 24px rgba(0,229,255,.25);
+    }
+    .callout{ margin-top:16px; display:flex; gap:10px; align-items:center; color:#cfe9ff; }
+    .callout i{ color:#00e5ff; text-shadow:0 0 14px rgba(0,229,255,.65); }
+
+    .card-glass{
+      background: rgba(255,255,255,.16); border:1px solid var(--glass-border);
+      border-radius: var(--radius); box-shadow: var(--shadow); padding:30px; position:relative; overflow:hidden;
+      color:#071018;
+    }
+    .glow-ring{
+      position:absolute; inset:-2px; border-radius:inherit; pointer-events:none; opacity:.9;
+      background:
+        radial-gradient(160px 100px at 18% 18%, rgba(0,229,255,.35), transparent 60%),
+        radial-gradient(220px 130px at 85% 70%, rgba(124,77,255,.35), transparent 60%),
+        radial-gradient(200px 120px at 50% -10%, rgba(255,61,113,.35), transparent 65%);
+    }
+
+    .form-label {
+      color: #ffffff !important;
+      font-weight: 600;
+    }
+
+    .form-control {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff !important;
+    }
+
+    .form-control::placeholder {
+      color: #bcd8ff;
+      opacity: 0.9;
+    }
+
+    .form-control:focus {
+      border-color: #00e5ff;
+      box-shadow: 0 0 0 0.25rem rgba(0,229,255,0.35);
+      background: rgba(255, 255, 255, 0.18);
+      color: #ffffff !important;
+    }
+
+    .btn-gradient{
+      width:100%; padding:12px 14px; font-weight:800; border:none; border-radius:14px;
+      color:#001018;
+      background: linear-gradient(90deg, var(--brand-start), var(--brand-end));
+      box-shadow: 0 20px 40px rgba(0,229,255,.35), 0 14px 30px rgba(124,77,255,.25);
+    }
+    .btn-gradient:hover{ filter:brightness(1.1); transform:translateY(-1px); }
+
+    .success-toast{
+      position:fixed; left:50%; transform:translateX(-50%); bottom:28px;
+      background: linear-gradient(90deg, rgba(0,229,255,.25), rgba(124,77,255,.25));
+      color:#ffffff; border:1px solid rgba(255,255,255,.25);
+      border-radius:14px; padding:.9rem 1.1rem; box-shadow: var(--shadow); display:none;
+      text-shadow:0 0 10px rgba(255,255,255,.5);
+    }
+
+    .about{
+      padding: 120px 0 100px;
+      background:
+        radial-gradient(700px 420px at 80% -20%, rgba(0,229,255,.22), transparent 60%),
+        radial-gradient(620px 380px at 0% 100%, rgba(124,77,255,.22), transparent 60%),
+        radial-gradient(520px 340px at 30% 40%, rgba(255,61,113,.18), transparent 60%);
+    }
+    .split{ display:grid; grid-template-columns: 1fr 1fr; gap:26px; }
+    .tile{
+      background: rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.22); border-radius:18px;
+      padding:22px; height:100%;
+    }
+    .tile h4{ font-weight:900; margin-bottom:10px; }
+    .tile p{ color:#eaf6ff; }
+
+    .how-grid{
+      display:grid; grid-template-columns: repeat(3, 1fr); gap:18px; margin-top:18px;
+    }
+    .how-step{
+      background: rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.24);
+      border-radius:16px; padding:18px; height:100%;
+    }
+    .how-step i{ font-size:22px; color:#00e5ff; margin-right:8px; text-shadow:0 0 12px rgba(0,229,255,.7); }
+    .how-step h6{ font-weight:900; margin:6px 0 4px 0; }
+    .muted{ color:#d9e9ff; font-size:.97rem; }
+
+    .social a{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:42px; height:42px; margin-right:10px; border-radius:999px;
+      background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.85));
+      border:1px solid rgba(0,0,0,.06); color:#00111a;
+      box-shadow:0 12px 24px rgba(0,229,255,.18);
+    }
+    .social a:hover{
+      transform:translateY(-2px);
+      box-shadow:0 16px 30px rgba(124,77,255,.25), 0 10px 22px rgba(0,229,255,.25);
+    }
+
+    .blob{
+      position:absolute; filter: blur(42px); opacity:.65; z-index:0; border-radius:50%;
+      animation: float 18s ease-in-out infinite;
+    }
+    .blob.b1{ width:420px; height:420px; top:-80px; right:-80px;
+      background: radial-gradient(circle at 40% 40%, rgba(124,77,255,.95), transparent 60%); }
+    .blob.b2{ width:320px; height:320px; bottom:-60px; left:-40px; animation-duration:22s;
+      background: radial-gradient(circle at 60% 60%, rgba(0,229,255,.95), transparent 60%); }
+    .blob.b3{ width:260px; height:260px; top:40%; left:50%; animation-duration:26s;
+      background: radial-gradient(circle at 50% 50%, rgba(255,61,113,.9), transparent 60%); }
+    @keyframes float{
+      0%{ transform: translateY(0) translateX(0) scale(1); }
+      50%{ transform: translateY(30px) translateX(12px) scale(1.04); }
+      100%{ transform: translateY(0) translateX(0) scale(1); }
+    }
+    
+    @media (max-width: 992px){
+      .hero{ grid-template-columns: 1fr; }
+      .split{ grid-template-columns: 1fr; }
+      .how-grid{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark custom-nav">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#home">
+        <span class="brand-dot"></span> Event Registration
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div id="nav" class="collapse navbar-collapse justify-content-end">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link active" href="#home">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+            <li class="nav-item"><a class="nav-link" href="#registrations">View Registrations</a></li>
+          </ul>
+        <button class="nav-cta ms-2" onclick="document.getElementById('name').focus()">Register</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+
+  <!-- HERO -->
+  <section id="home" class="section">
+    <div class="container-narrow hero">
+      <div class="hero-copy" data-aos="fade-right">
+        <div class="chips">
+          <span class="chip"><i class="fa-solid fa-shield-check me-1"></i> Validation Built-in</span>
+          <span class="chip"><i class="fa-solid fa-database me-1"></i> Logged to Sheet</span>
+          <span class="chip"><i class="fa-solid fa-bolt me-1"></i> Serverless</span>
+        </div>
+        <h1 class="heading-xl">ACM SIGCHI Tech Task Registration Form</h1>
+        <p class="lead-lg mt-3">
+          Designed by Prajith Arjunan S
+        </p>
+      </div>
+
+      <div class="card-glass" data-aos="zoom-in">
+        <span class="glow-ring"></span>
+        <h4 class="mb-3 form-label text-center">Register for the Event</h4>
+        <form id="registrationForm" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="name">Full Name</label>
+            <input id="name" type="text" class="form-control" placeholder="Your Full Name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="email">Email Address</label>
+            <input id="email" type="email" class="form-control" placeholder="netid@srmist.edu.in" required>
+          </div>
+          <button class="btn btn-gradient" type="submit">
+            <i class="fa-solid fa-paper-plane me-2"></i> Register
+          </button>
+        </form>
+        <div class="small mt-2 form-label text-center" style="color:#2b4660">
+          Validation: non-empty fields & proper email format.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="section about">
+    <div class="container-narrow">
+      <h2 class="heading-xl mb-4 text-center" data-aos="fade-up">The Why, The What, The How <br> My Build Story</h2>
+
+      <div class="split">
+        <div class="tile" data-aos="fade-up" data-aos-delay="50">
+          <h4>Why this approach?</h4>
+          <p>
+            To meet the ACM SIGCHI Tech task, I designed a simple and reliable registration form with validation and logging. 
+            Hosting on Apps Script minimizes infrastructure effort, simplify deployment, and logs submissions directly into Google Sheets for instant verification.
+          </p>
+          <ul class="muted mb-0">
+            <li>Same-origin calls via <code>google.script.run</code></li>
+            <li>Durable, auditable log in <code>Registration_Log</code></li>
+            <li>Easy to demo & record for submission</li>
+          </ul>
+        </div>
+
+        <div class="tile" data-aos="fade-up" data-aos-delay="100">
+          <h4>What I built</h4>
+          <p>
+            A single-page landing with neon accents and micro-interactions. The form enforces basic validation, shows a success notification,
+            and the backend appends <strong>Name</strong>, <strong>Email</strong>, and <strong>Timestamp</strong> to the sheet.
+          </p>
+          <ul class="muted mb-0">
+            <li>Fields: Name + Email (regex verified)</li>
+            <li>Storage: Google Sheet: <code>Registration_Log</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="how-grid" data-aos="fade-up" data-aos-delay="150">
+        <div class="how-step">
+          <div><i class="fa-solid fa-1"></i><span class="fw-bold">  Frontend Validation</span></div>
+          <p class="muted">Both fields required; email must match a regex pattern.</p>
+        </div>
+        <div class="how-step">
+          <div><i class="fa-solid fa-2"></i><span class="fw-bold">  Apps Script Call</span></div>
+          <p class="muted"><code>google.script.run.registerUser({name,email})</code> → same origin, secure, fast.</p>
+        </div>
+        <div class="how-step">
+          <div><i class="fa-solid fa-3"></i><span class="fw-bold">  Logging & Ack</span></div>
+          <p class="muted">Row appended to the sheet; UI shows a success notification.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REGISTRATIONS -->
+  <section id="registrations" class="section" style="background:#0b1020; padding:10px 0;">
+    <div class="container-fluid">
+      <h2 class="heading-xl mb-4 text-center">All Registrations</h2>
+      <div class="table-responsive card-glass" style="padding:20px;">
+        <table class="table table-dark table-striped">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="registrationsBody">
+            <tr><td colspan="3">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="py-3 text-center" style="border-top:1px solid rgba(255,255,255,.18); background:rgba(0,0,0,.25)">
+    <small class="text-light">© 2025 - Designed by Prajith Arjunan S
+  </footer>
+
+  <div id="successToast" class="success-toast">
+    <i class="fa-solid fa-circle-check me-1"></i> Registration successful!
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <script>
+    AOS.init({ duration: 1100, once: true });
+    gsap.from(".brand-dot", {scale:100, duration:2, ease:"back.out(1)"});
+    gsap.to(".blob.b1", {y:18, duration:4, repeat:-1, yoyo:true, ease:"sine.inOut"});
+    gsap.to(".blob.b2", {y:-14, duration:5, repeat:-1, yoyo:true, ease:"sine.inOut"});
+    gsap.to(".blob.b3", {y:10, duration:6, repeat:-1, yoyo:true, ease:"sine.inOut"});
+
+    const form = document.getElementById("registrationForm");
+    const toast = document.getElementById("successToast");
+
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      const name  = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const validEmail = /\S+@\S+\.\S+/.test(email);
+
+      if(!name || !email || !validEmail){
+        alert("Please enter a valid name and email.");
+        return;
+      }
+
+      google.script.run.withSuccessHandler(function(res){
+        if(res && res.success){
+          form.reset();
+          toast.style.display = "block";
+          toast.style.opacity = "0";
+          gsap.to(toast, {opacity:1, y:-6, duration:.35, ease:"power2.out"});
+          setTimeout(()=> gsap.to(toast, {opacity:0, y:0, duration:.35, ease:"power2.in", onComplete(){ toast.style.display="none"; }}), 1800);
+        } else {
+          alert("Registration failed" + (res && res.error ? `: ${res.error}` : "."));
+        }
+      }).registerUser({name, email});
+    });
+
+    function renderRegistrations(rows) {
+      console.log("Rows from backend:", rows);
+      const tbody = document.getElementById("registrationsBody");
+      tbody.innerHTML = "";
+
+      if (!rows || !rows.length) {
+        tbody.innerHTML = "<tr><td colspan='3'>No registrations yet.</td></tr>";
+        return;
+      }
+
+      rows.forEach(r => {
+        const tr = document.createElement("tr");
+
+        let ts = r[2];
+        if (ts) {
+          try {
+            ts = new Date(ts).toLocaleString();
+          } catch (e) {
+            ts = r[2];
+          }
+        } else {
+          ts = "";
+        }
+
+        tr.innerHTML = `
+          <td>${r[0] || ""}</td>
+          <td>${r[1] || ""}</td>
+          <td>${ts}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    google.script.run.withSuccessHandler(renderRegistrations).getRegistrations();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
